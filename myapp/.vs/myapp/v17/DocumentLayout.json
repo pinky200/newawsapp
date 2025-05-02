@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\AL HOLOOL\\newapp\\myapp\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{DFF5DBAB-5DCF-286C-BA34-4826904FB644}|myapp.client\\myapp.client.esproj|c:\\users\\al holool\\newapp\\myapp\\myapp.client\\.vscode\\launch.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{DFF5DBAB-5DCF-286C-BA34-4826904FB644}|myapp.client\\myapp.client.esproj|solutionrelative:myapp.client\\.vscode\\launch.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{DFF5DBAB-5DCF-286C-BA34-4826904FB644}|myapp.client\\myapp.client.esproj|c:\\users\\al holool\\newapp\\myapp\\myapp.client\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{DFF5DBAB-5DCF-286C-BA34-4826904FB644}|myapp.client\\myapp.client.esproj|solutionrelative:myapp.client\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "index.html",
+              "DocumentMoniker": "C:\\Users\\AL HOLOOL\\newapp\\myapp\\myapp.client\\index.html",
+              "RelativeDocumentMoniker": "myapp.client\\index.html",
+              "ToolTip": "C:\\Users\\AL HOLOOL\\newapp\\myapp\\myapp.client\\index.html",
+              "RelativeToolTip": "myapp.client\\index.html",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2025-05-02T17:14:08.81Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "launch.json",
+              "DocumentMoniker": "C:\\Users\\AL HOLOOL\\newapp\\myapp\\myapp.client\\.vscode\\launch.json",
+              "RelativeDocumentMoniker": "myapp.client\\.vscode\\launch.json",
+              "ToolTip": "C:\\Users\\AL HOLOOL\\newapp\\myapp\\myapp.client\\.vscode\\launch.json",
+              "RelativeToolTip": "myapp.client\\.vscode\\launch.json",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
+              "WhenOpened": "2025-05-02T17:13:50.228Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
