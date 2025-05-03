@@ -68,30 +68,19 @@ jobs:
             --region ${{ env.AWS_REGION }} \
             --name ${{ env.EKS_CLUSTER_NAME }}
 
-      - name: Deploy with Helm
+      - name: Deploy without Service Account
         run: |
           cd myapp/myapp.client/test
           
-          # Clean up previous failed release
-          helm uninstall test --namespace default || true
-          
-          # Install with simplified configuration
           helm upgrade --install \
             test \
             . \
             --namespace default \
             --set image.repository=${{ env.ECR_REPOSITORY }} \
             --set image.tag=${{ env.SHORT_SHA }} \
-            --set replicaCount=1 \
-            --set resources.requests.cpu=250m \
-            --set resources.requests.memory=512Mi \
-            --set service.port=80 \
+            --set serviceAccount.create=false \  # Explicitly disable
             --set service.targetPort=8080 \
-            --set ingress.enabled=false \
+            --set ingress.enabled=true \
             --atomic \
             --timeout 1200s \
-            --wait \
             --debug
-          
-          # Verify deployment
-          kubectl get pods,svc -n default
