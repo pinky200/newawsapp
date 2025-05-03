@@ -1,0 +1,70 @@
+name: Build, Push, Deploy to EKS (Canada)
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  AWS_REGION: "ca-central-1"
+  EKS_CLUSTER_NAME: "mycluster"  # Added quotes
+  HELM_CHART_NAME: "test"        # Added quotes
+  ECR_REPOSITORY: "755583968331.dkr.ecr.ca-central-1.amazonaws.com/myapprepo"
+  DOCKER_IMAGE_TAG: "${{ github.sha | substr(0, 7) }}"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      # --- 1. Checkout Code ---
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- 2. Configure AWS for Canada ---
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # --- 3. Create ECR Repo (if missing) ---
+      - name: Ensure ECR Repository
+        run: |
+          aws ecr describe-repositories --repository-names myapprepo || \
+          aws ecr create-repository --repository-name myapprepo
+
+      # --- 4. Login to ECR ---
+      - name: ECR Login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # --- 5. Build & Push ---
+      - name: Build and Push
+        run: |
+          docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }} .
+          docker push ${{ env.ECR_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }}
+
+      # --- 6. Setup Kubernetes Tools ---
+      - name: Install Tools
+        uses: azure/setup-helm@v3
+
+      # --- 7. Configure EKS Access ---
+      - name: Configure EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ env.EKS_CLUSTER_NAME }}
+
+      # --- 8. Deploy with Helm ---
+      - name: Helm Upgrade
+        run: |
+          helm upgrade --install \
+            ${{ env.HELM_CHART_NAME }} \
+            ./helm \                  # Changed to standard helm directory
+            --namespace default \
+            --set image.repository=${{ env.ECR_REPOSITORY }} \
+            --set image.tag=${{ env.DOCKER_IMAGE_TAG }} \
+            --atomic                  # Adds rollback on failure
