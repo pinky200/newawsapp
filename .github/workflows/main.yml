@@ -6,10 +6,10 @@ on:
 
 env:
   AWS_REGION: "ca-central-1"
-  EKS_CLUSTER_NAME: "mycluster"  # Added quotes
-  HELM_CHART_NAME: "test"        # Added quotes
+  EKS_CLUSTER_NAME: "mycluster"
+  HELM_CHART_NAME: "test"
   ECR_REPOSITORY: "755583968331.dkr.ecr.ca-central-1.amazonaws.com/myapprepo"
-  DOCKER_IMAGE_TAG: "${{ github.sha | substr(0, 7) }}"
+  # Removed the substr filter from env and will handle it in the step
 
 jobs:
   deploy:
@@ -43,9 +43,12 @@ jobs:
 
       # --- 5. Build & Push ---
       - name: Build and Push
+        id: build-push
         run: |
-          docker build -t ${{ env.ECR_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }} .
-          docker push ${{ env.ECR_REPOSITORY }}:${{ env.DOCKER_IMAGE_TAG }}
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker build -t ${{ env.ECR_REPOSITORY }}:$SHORT_SHA .
+          docker push ${{ env.ECR_REPOSITORY }}:$SHORT_SHA
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
 
       # --- 6. Setup Kubernetes Tools ---
       - name: Install Tools
@@ -63,8 +66,8 @@ jobs:
         run: |
           helm upgrade --install \
             ${{ env.HELM_CHART_NAME }} \
-            ./helm \                  # Changed to standard helm directory
+            ./test \                  # Changed to your actual chart path
             --namespace default \
             --set image.repository=${{ env.ECR_REPOSITORY }} \
-            --set image.tag=${{ env.DOCKER_IMAGE_TAG }} \
-            --atomic                  # Adds rollback on failure
+            --set image.tag=${{ env.SHORT_SHA }} \
+            --atomic
