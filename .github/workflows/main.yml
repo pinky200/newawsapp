@@ -70,11 +70,21 @@ jobs:
 
       - name: Deploy with Helm
         run: |
-          cd ${{ env.CHART_DIR }}
+          # Navigate to chart directory
+          cd myapp/myapp.client/test
+          
+          # Debug output
+          echo "Current directory: $(pwd)"
+          ls -la
+          
+          # Install with extended timeout
           helm upgrade --install \
             ${{ env.HELM_CHART_NAME }} \
             . \
             --namespace default \
             --set image.repository=${{ env.ECR_REPOSITORY }} \
             --set image.tag=${{ env.SHORT_SHA }} \
-            --atomic
+            --atomic \
+            --timeout 600s \
+            --wait \
+            --debug
