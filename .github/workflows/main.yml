@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          path: 'src'  # Explicit checkout path
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -40,7 +42,7 @@ jobs:
         id: build-push
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          cd newapp/myapp/myapp.client || cd myapp/myapp.client || cd myapp.client
+          cd src/myapp.client
           docker build -t ${{ env.ECR_REPOSITORY }}:$SHORT_SHA .
           docker push ${{ env.ECR_REPOSITORY }}:$SHORT_SHA
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
@@ -56,7 +58,7 @@ jobs:
 
       - name: Deploy with Helm
         run: |
-          cd newapp/myapp/myapp.client/test || cd myapp/myapp.client/test || cd test
+          cd src/myapp.client/test
           helm upgrade --install \
             ${{ env.HELM_CHART_NAME }} \
             . \
