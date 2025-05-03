@@ -40,7 +40,8 @@ jobs:
         id: build-push
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          docker build -t ${{ env.ECR_REPOSITORY }}:$SHORT_SHA ./myapp.client
+          cd newapp/myapp/myapp.client || cd myapp/myapp.client || cd myapp.client
+          docker build -t ${{ env.ECR_REPOSITORY }}:$SHORT_SHA .
           docker push ${{ env.ECR_REPOSITORY }}:$SHORT_SHA
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
 
@@ -55,9 +56,10 @@ jobs:
 
       - name: Deploy with Helm
         run: |
+          cd newapp/myapp/myapp.client/test || cd myapp/myapp.client/test || cd test
           helm upgrade --install \
             ${{ env.HELM_CHART_NAME }} \
-            ./myapp.client/test \
+            . \
             --namespace default \
             --set image.repository=${{ env.ECR_REPOSITORY }} \
             --set image.tag=${{ env.SHORT_SHA }} \
