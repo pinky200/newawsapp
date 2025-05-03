@@ -70,21 +70,27 @@ jobs:
 
       - name: Deploy with Helm
         run: |
-          # Navigate to chart directory
           cd myapp/myapp.client/test
           
-          # Debug output
-          echo "Current directory: $(pwd)"
-          ls -la
+          # Clean up previous failed release
+          helm uninstall test --namespace default || true
           
-          # Install with extended timeout
+          # Install with proper configuration
           helm upgrade --install \
-            ${{ env.HELM_CHART_NAME }} \
+            test \
             . \
             --namespace default \
             --set image.repository=${{ env.ECR_REPOSITORY }} \
             --set image.tag=${{ env.SHORT_SHA }} \
+            --set resources.requests.cpu=250m \
+            --set resources.requests.memory=512Mi \
+            --set service.targetPort=8080 \
+            --set service.port=80 \
+            --set container.port=8080 \
             --atomic \
-            --timeout 600s \
+            --timeout 1200s \
             --wait \
             --debug
+          
+          # Verify deployment
+          kubectl get pods -n default -w
