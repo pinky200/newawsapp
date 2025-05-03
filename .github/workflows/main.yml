@@ -71,16 +71,15 @@ jobs:
       - name: Deploy without Service Account
         run: |
           cd myapp/myapp.client/test
-          
-          helm upgrade --install \
-            test \
-            . \
+
+          helm upgrade --install test . \
             --namespace default \
             --set image.repository=${{ env.ECR_REPOSITORY }} \
             --set image.tag=${{ env.SHORT_SHA }} \
-            --set serviceAccount.create=false \  # Explicitly disable
-            --set service.targetPort=8080 \
+            --set serviceAccount.create=false \
             --set ingress.enabled=true \
+            --set ingress.className=alb \
+            --set ingress.hosts[0].host="your-domain.com" \
             --atomic \
             --timeout 1200s \
             --debug
