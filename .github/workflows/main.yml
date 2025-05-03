@@ -9,7 +9,6 @@ env:
   EKS_CLUSTER_NAME: "mycluster"
   HELM_CHART_NAME: "test"
   ECR_REPOSITORY: "755583968331.dkr.ecr.ca-central-1.amazonaws.com/myapprepo"
-  # Removed the substr filter from env and will handle it in the step
 
 jobs:
   deploy:
@@ -42,32 +41,4 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       # --- 5. Build & Push ---
-      - name: Build and Push
-        id: build-push
-        run: |
-          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          docker build -t ${{ env.ECR_REPOSITORY }}:$SHORT_SHA .
-          docker push ${{ env.ECR_REPOSITORY }}:$SHORT_SHA
-          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
-
-      # --- 6. Setup Kubernetes Tools ---
-      - name: Install Tools
-        uses: azure/setup-helm@v3
-
-      # --- 7. Configure EKS Access ---
-      - name: Configure EKS
-        run: |
-          aws eks update-kubeconfig \
-            --region ${{ env.AWS_REGION }} \
-            --name ${{ env.EKS_CLUSTER_NAME }}
-
-      # --- 8. Deploy with Helm ---
-      - name: Helm Upgrade
-        run: |
-          helm upgrade --install \
-            ${{ env.HELM_CHART_NAME }} \
-            ./test \                  # Changed to your actual chart path
-            --namespace default \
-            --set image.repository=${{ env.ECR_REPOSITORY }} \
-            --set image.tag=${{ env.SHORT_SHA }} \
-            --atomic
+      - name
