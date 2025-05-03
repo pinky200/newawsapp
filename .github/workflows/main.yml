@@ -75,22 +75,23 @@ jobs:
           # Clean up previous failed release
           helm uninstall test --namespace default || true
           
-          # Install with proper configuration
+          # Install with simplified configuration
           helm upgrade --install \
             test \
             . \
             --namespace default \
             --set image.repository=${{ env.ECR_REPOSITORY }} \
             --set image.tag=${{ env.SHORT_SHA }} \
+            --set replicaCount=1 \
             --set resources.requests.cpu=250m \
             --set resources.requests.memory=512Mi \
-            --set service.targetPort=8080 \
             --set service.port=80 \
-            --set container.port=8080 \
+            --set service.targetPort=8080 \
+            --set ingress.enabled=false \
             --atomic \
             --timeout 1200s \
             --wait \
             --debug
           
           # Verify deployment
-          kubectl get pods -n default -w
+          kubectl get pods,svc -n default
