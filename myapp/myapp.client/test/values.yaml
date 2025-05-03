@@ -99,3 +99,11 @@ affinity: {}
 fargateProfile:
   enabled: true
   profileName: fp-default  # Must match your Fargate profile name
+
+
+# Add this to myapp.client/test/values.yaml
+autoscaling:
+  enabled: false  # Disable by default
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
