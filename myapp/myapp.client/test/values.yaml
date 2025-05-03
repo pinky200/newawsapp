@@ -59,25 +59,27 @@ service:
   targetPort: 8080  # Must match container.port
   annotations: {}
 
-# Ingress Configuration (Uncomment if needed)
-# ingress:
-#   enabled: false
-#   className: ""
-#   annotations: {}
-#   hosts:
-#     - host: ""
-#       paths:
-#         - path: /
-#           pathType: ImplementationSpecific
-#   tls: []
+## ALB Ingress Configuration
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+  hosts:
+    - host: your-domain.com  # Replace with your domain
+      paths:
+        - path: /
+          pathType: Prefix
 
 # Autoscaling Configuration (Uncomment if needed)
-# autoscaling:
-#   enabled: false
-#   minReplicas: 1
-#   maxReplicas: 3
-#   targetCPUUtilizationPercentage: 80
-#   targetMemoryUtilizationPercentage: 80
+autoscaling:
+  enabled: false  # Disable by default
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
 
 # Pod Configuration
 podAnnotations: {}
@@ -102,8 +104,4 @@ fargateProfile:
 
 
 # Add this to myapp.client/test/values.yaml
-autoscaling:
-  enabled: false  # Disable by default
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 80
+
