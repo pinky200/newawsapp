@@ -20,8 +20,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          path: 'src'  # Explicit checkout path
+
+      - name: Find Dockerfile location
+        id: find-dockerfile
+        run: |
+          DOCKERFILE_PATH=$(find . -name Dockerfile -printf '%h\n' | head -1)
+          echo "DOCKERFILE_DIR=${DOCKERFILE_PATH#./}" >> $GITHUB_ENV
+          echo "Found Dockerfile in: ${DOCKERFILE_PATH#./}"
+
+      - name: Find Helm chart location
+        id: find-helm-chart
+        run: |
+          CHART_PATH=$(find . -name Chart.yaml -printf '%h\n' | head -1)
+          echo "CHART_DIR=${CHART_PATH#./}" >> $GITHUB_ENV
+          echo "Found Helm chart in: ${CHART_PATH#./}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -42,7 +54,7 @@ jobs:
         id: build-push
         run: |
           SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
-          cd src/myapp.client
+          cd ${{ env.DOCKERFILE_DIR }}
           docker build -t ${{ env.ECR_REPOSITORY }}:$SHORT_SHA .
           docker push ${{ env.ECR_REPOSITORY }}:$SHORT_SHA
           echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
@@ -58,7 +70,7 @@ jobs:
 
       - name: Deploy with Helm
         run: |
-          cd src/myapp.client/test
+          cd ${{ env.CHART_DIR }}
           helm upgrade --install \
             ${{ env.HELM_CHART_NAME }} \
             . \
