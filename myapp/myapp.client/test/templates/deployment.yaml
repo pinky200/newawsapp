@@ -19,7 +19,6 @@ spec:
       {{- end }}
     spec:
       {{- if .Values.serviceAccount.create }}
-      serviceAccountName: {{ include "test.serviceAccountName" . }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
