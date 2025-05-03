@@ -18,27 +18,47 @@ jobs:
       packages: write
 
     steps:
-      # --- 1. Checkout Code ---
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- 2. Configure AWS for Canada ---
-      - name: Configure AWS
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      # --- 3. Create ECR Repo (if missing) ---
-      - name: Ensure ECR Repository
+      - name: Ensure ECR repository exists
         run: |
           aws ecr describe-repositories --repository-names myapprepo || \
           aws ecr create-repository --repository-name myapprepo
 
-      # --- 4. Login to ECR ---
-      - name: ECR Login
+      - name: Login to ECR
         uses: aws-actions/amazon-ecr-login@v2
 
-      # --- 5. Build & Push ---
-      - name
+      - name: Build and push Docker image
+        id: build-push
+        run: |
+          SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)
+          docker build -t ${{ env.ECR_REPOSITORY }}:$SHORT_SHA ./myapp.client
+          docker push ${{ env.ECR_REPOSITORY }}:$SHORT_SHA
+          echo "SHORT_SHA=$SHORT_SHA" >> $GITHUB_ENV
+
+      - name: Install Helm and kubectl
+        uses: azure/setup-helm@v3
+
+      - name: Configure EKS access
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ env.EKS_CLUSTER_NAME }}
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install \
+            ${{ env.HELM_CHART_NAME }} \
+            ./myapp.client/test \
+            --namespace default \
+            --set image.repository=${{ env.ECR_REPOSITORY }} \
+            --set image.tag=${{ env.SHORT_SHA }} \
+            --atomic
